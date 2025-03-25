@@ -49,3 +49,5 @@ MCP可以被視為一種標準化的function call協議，其主要優勢包括�
 # MCP 運作原理
 
 MCP（Model Context Protocol）採用循環互動架構，實現模型與上下文間的動態數據交換。其運作原理可分為以下核心階段：
+
+圖片解析
