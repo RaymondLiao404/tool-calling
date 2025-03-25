@@ -1,6 +1,6 @@
 # MCP 介紹與講解
 
-MCP（Model Context Protocol）是2024年11月由開發模型Claude的美國新創公司Anthropic推出。
+MCP（Model Context Protocol）是2024年11月由開發Claude模型的美國新創公司Anthropic推出。
 
 **MCP簡單來說就是大模型的標準化工具箱。**
 
