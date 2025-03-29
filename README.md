@@ -1,4 +1,10 @@
-# 工具教學筆記
+# Agent Tools 創建與追蹤
+
+## 項目概述
+本項目專注於開發和展示工具調用（Tools Calling）功能，並使用LangSmith進行監控和分析。LangSmith提供以下功能：
+- **調用流程可視化**: 清晰展示工具調用流程
+- **性能監控**: 追蹤工具執行效率
+- **錯誤診斷**: 快速定位和解決問題
 
 ## 項目簡介
 本項目提供兩個實用的工具：
@@ -24,12 +30,8 @@ result = weather_tool.run("臺北市")
 print(result)
 ```
 
-**執行結果**:
+**執行結果與分析**:
 - [查看LangSmith執行流程](https://smith.langchain.com/public/ba158f91-b1c9-4fc6-adf6-7dfe8804ad60/r)
-- **LangSmith簡介**: LangSmith提供工具調用的詳細追蹤和可視化，可用於：
-  - 調用流程分析
-  - 性能監控
-  - 錯誤診斷
 
 ### 2. 文章摘要工具 (ArticleSummarizerTool)
 - **功能**: 生成文章摘要，可選關鍵字分析
@@ -51,13 +53,13 @@ result = summarizer.run(text, max_length=150, keywords=True)
 print(result)
 ```
 
-**執行結果**:
+**執行結果與分析**:
 - [查看LangSmith執行流程](https://smith.langchain.com/public/c3ef486a-8721-40b6-88b5-aeba3310535f/r)
 
 ## 工具選擇邏輯
 
-![天氣工具描述](images/weather_tool_description.png)
-![文章摘要工具描述](images/article_tool_description.png)
+![天氣工具描述](images\AgentExecutor_weatherTool_flow.jpg)
+![文章摘要工具描述](images\AgentExecutor_article_summarizer_flow.jpg)
 
 工具調用邏輯由LangChain的AgentExecutor處理，它會根據以下流程選擇合適的工具：
 
@@ -90,7 +92,9 @@ class ExampleModel(BaseModel):
     age: int = Field(description="用戶年齡", gt=0, lt=120)
 ```
 
-LangChain 提供了兩種創建工具的方式，均與Pydantic深度整合：
+## 總結
+
+LangChain 提供了多種創建工具的方式均與Pydantic深度整合：
 
 ### 1. 函數式寫法 (StructuredTool.from_function)
 - **特點**: 
@@ -136,55 +140,6 @@ LangChain 提供了兩種創建工具的方式，均與Pydantic深度整合：
 4. **非同步支持**:
    - 可選實現`_arun`方法
    - 支持非同步調用
-
-## 工具列表
-
-### 1. 天氣查詢工具 (weather_tool)
-- **功能**: 查詢臺灣縣市的天氣資料
-- **輸入格式**: 
-  - `city`: 臺灣縣市名稱（需繁體中文，如'臺北市'）
-- **特點**:
-  - 自動將「台」轉換為「臺」
-  - 自動補上「市」或「縣」
-
-**使用示例**:
-```python
-from tools import weather_tool
-
-# 查詢臺北市天氣
-result = weather_tool.run("臺北市")
-print(result)
-```
-
-**執行結果**:
-- [查看LangSmith執行流程](https://smith.langchain.com/public/ba158f91-b1c9-4fc6-adf6-7dfe8804ad60/r)
-- **LangSmith簡介**: LangSmith提供工具調用的詳細追蹤和可視化，可用於：
-  - 調用流程分析
-  - 性能監控
-  - 錯誤診斷
-
-### 2. 文章摘要工具 (ArticleSummarizerTool)
-- **功能**: 生成文章摘要，可選關鍵字分析
-- **輸入格式**:
-  - `text`: 要摘要的文章內容
-  - `max_length`: 摘要的最大字數（默認100）
-  - `keywords`: 是否包含關鍵字分析（默認False）
-
-**使用示例**:
-```python
-from tools import ArticleSummarizerTool
-
-# 創建工具實例
-summarizer = ArticleSummarizerTool()
-
-# 生成摘要
-text = "這裡是一篇長文章內容..."
-result = summarizer.run(text, max_length=150, keywords=True)
-print(result)
-```
-
-**執行結果**:
-- [查看LangSmith執行流程](https://smith.langchain.com/public/c3ef486a-8721-40b6-88b5-aeba3310535f/r)
 
 ## 注意事項
 1. 天氣查詢工具依賴外部API，請確保網絡連接正常
