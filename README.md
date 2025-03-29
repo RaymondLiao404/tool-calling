@@ -1,53 +1,195 @@
-# MCP 介紹與講解
+# 工具教學筆記
 
-MCP（Model Context Protocol）是2024年11月由開發Claude模型的美國新創公司Anthropic推出。
+## 項目簡介
+本項目提供兩個實用的工具：
+1. 天氣查詢工具 - 查詢臺灣各縣市的天氣資訊
+2. 文章摘要工具 - 自動生成文章摘要，可選關鍵字分析
 
-**MCP簡單來說就是大模型的標準化工具箱。**
+## 工具列表
 
-我們將通過以下幾個關鍵問題來深入理解MCP：
+### 1. 天氣查詢工具 (weather_tool)
+- **功能**: 查詢臺灣縣市的天氣資料
+- **輸入格式**: 
+  - `city`: 臺灣縣市名稱（需繁體中文，如'臺北市'）
+- **特點**:
+  - 自動將「台」轉換為「臺」
+  - 自動補上「市」或「縣」
 
-1. 大模型如何發現工具箱中的工具？
-2. 工具調用時使用什麼樣的參數？
-3. MCP與function call的關係是什麼？
-4. 是否只有支持function call的模型才能使用MCP？
+**使用示例**:
+```python
+from tools import weather_tool
 
-## 1. 大模型如何發現工具箱中的工具？
+# 查詢臺北市天氣
+result = weather_tool.run("臺北市")
+print(result)
+```
 
-MCP提供了一套標準化的工具發現機制。每個MCP伺服器都會公布其提供的工具列表，包括：
-- 工具名稱
-- 功能描述  
-- 參數格式
-- 使用示例
+**執行結果**:
+- [查看LangSmith執行流程](https://smith.langchain.com/public/ba158f91-b1c9-4fc6-adf6-7dfe8804ad60/r)
+- **LangSmith簡介**: LangSmith提供工具調用的詳細追蹤和可視化，可用於：
+  - 調用流程分析
+  - 性能監控
+  - 錯誤診斷
 
-模型可以通過查詢這些資訊來了解可用的工具箱內容，並根據需要選擇合適的工具。
+### 2. 文章摘要工具 (ArticleSummarizerTool)
+- **功能**: 生成文章摘要，可選關鍵字分析
+- **輸入格式**:
+  - `text`: 要摘要的文章內容
+  - `max_length`: 摘要的最大字數（默認100）
+  - `keywords`: 是否包含關鍵字分析（默認False）
 
-## 2. 工具調用時使用什麼樣的參數？
+**使用示例**:
+```python
+from tools import ArticleSummarizerTool
 
-MCP中的每個工具都定義了自己的參數格式，主要特點包括：
-- 使用JSON Schema規範描述參數結構
-- 明確指定輸入數據類型和格式
-- 定義必填和可選參數
-- 提供參數驗證規則
+# 創建工具實例
+summarizer = ArticleSummarizerTool()
 
-當調用工具時，模型需要按照定義的模式來組織參數，確保數據格式正確。
+# 生成摘要
+text = "這裡是一篇長文章內容..."
+result = summarizer.run(text, max_length=150, keywords=True)
+print(result)
+```
 
-## 3. MCP與function call的關係是什麼？
+**執行結果**:
+- [查看LangSmith執行流程](https://smith.langchain.com/public/c3ef486a-8721-40b6-88b5-aeba3310535f/r)
 
-MCP可以被視為一種標準化的function call協議，其主要優勢包括：
-- 統一了不同工具和API的調用方式
-- 簡化了模型與外部系統的交互
-- 提供了更靈活的工具管理機制
-- 支持動態工具發現和調用
+## 工具選擇邏輯
 
-## 4. 是否只有支持function call的模型才能使用MCP？
+![天氣工具描述](images/weather_tool_description.png)
+![文章摘要工具描述](images/article_tool_description.png)
 
-雖然MCP最初是為支持function call的模型設計的，但它的應用範圍更廣：
-- 原生支持function call的模型可以直接使用MCP
-- 通過中間層適配，不支持function call的模型也能使用MCP
-- MCP的標準化設計使其可以靈活應用於不同類型的模型
+工具調用邏輯由LangChain的AgentExecutor處理，它會根據以下流程選擇合適的工具：
 
-# MCP 運作原理
+1. **解析用戶輸入**
+2. **匹配工具描述**:
+   - 比較用戶輸入與每個工具的`description`
+   - 計算語義相似度
+   - 選擇最匹配的工具
+3. **輸入驗證**
+4. **執行工具**
+5. **返回結果**
 
-MCP（Model Context Protocol）採用循環互動架構，實現模型與上下文間的動態數據交換。其運作原理可分為以下核心階段：
+## LangChain 工具創建方式與Pydantic整合
 
-圖片解析
+### Pydantic Field 介紹
+- **作用**: 定義模型字段的元數據和驗證規則
+- **常用參數**:
+  - `description`: 字段的描述信息
+  - `default`: 字段的默認值
+  - `alias`: 字段的別名
+  - `min_length`/`max_length`: 字符串長度限制
+  - `gt`/`lt`: 數值範圍限制
+  - `regex`: 正則表達式驗證
+- **示例**:
+```python
+from pydantic import BaseModel, Field
+
+class ExampleModel(BaseModel):
+    name: str = Field(description="用戶姓名", min_length=2, max_length=50)
+    age: int = Field(description="用戶年齡", gt=0, lt=120)
+```
+
+LangChain 提供了兩種創建工具的方式，均與Pydantic深度整合：
+
+### 1. 函數式寫法 (StructuredTool.from_function)
+- **特點**: 
+  - 由 LangChain 内部自動生成 args_schema
+  - 基於Pydantic的類型提示自動驗證輸入
+- **優點**: 
+  - 簡單快速，適合簡單的工具
+  - 自動處理輸入驗證
+- **示例**: 天氣查詢工具採用此方式
+- **Pydantic角色**:
+  - 自動從函數簽名生成輸入schema
+  - 驗證輸入參數的類型和格式
+
+### 2. 類別式寫法 (BaseTool + BaseModel)
+- **特點**: 
+  - 透過繼承BaseModel定義參數規則
+  - 完全控制輸入驗證邏輯
+- **優點**: 
+  - 更靈活，適合複雜的工具
+  - 可自定義驗證規則
+- **示例**: 文章摘要工具採用此方式
+- **Pydantic角色**:
+  - 定義嚴格的輸入schema
+  - 提供豐富的驗證功能
+  - 支持嵌套數據結構
+
+## 工具調用邏輯
+
+1. **輸入驗證**:
+   - 使用Pydantic schema驗證輸入參數
+   - 自動轉換數據類型
+   - 提供清晰的錯誤信息
+
+2. **執行流程**:
+   - 調用工具的`_run`方法
+   - 處理業務邏輯
+   - 返回結果
+
+3. **錯誤處理**:
+   - 捕獲並處理異常
+   - 返回標準化錯誤信息
+
+4. **非同步支持**:
+   - 可選實現`_arun`方法
+   - 支持非同步調用
+
+## 工具列表
+
+### 1. 天氣查詢工具 (weather_tool)
+- **功能**: 查詢臺灣縣市的天氣資料
+- **輸入格式**: 
+  - `city`: 臺灣縣市名稱（需繁體中文，如'臺北市'）
+- **特點**:
+  - 自動將「台」轉換為「臺」
+  - 自動補上「市」或「縣」
+
+**使用示例**:
+```python
+from tools import weather_tool
+
+# 查詢臺北市天氣
+result = weather_tool.run("臺北市")
+print(result)
+```
+
+**執行結果**:
+- [查看LangSmith執行流程](https://smith.langchain.com/public/ba158f91-b1c9-4fc6-adf6-7dfe8804ad60/r)
+- **LangSmith簡介**: LangSmith提供工具調用的詳細追蹤和可視化，可用於：
+  - 調用流程分析
+  - 性能監控
+  - 錯誤診斷
+
+### 2. 文章摘要工具 (ArticleSummarizerTool)
+- **功能**: 生成文章摘要，可選關鍵字分析
+- **輸入格式**:
+  - `text`: 要摘要的文章內容
+  - `max_length`: 摘要的最大字數（默認100）
+  - `keywords`: 是否包含關鍵字分析（默認False）
+
+**使用示例**:
+```python
+from tools import ArticleSummarizerTool
+
+# 創建工具實例
+summarizer = ArticleSummarizerTool()
+
+# 生成摘要
+text = "這裡是一篇長文章內容..."
+result = summarizer.run(text, max_length=150, keywords=True)
+print(result)
+```
+
+**執行結果**:
+- [查看LangSmith執行流程](https://smith.langchain.com/public/c3ef486a-8721-40b6-88b5-aeba3310535f/r)
+
+## 注意事項
+1. 天氣查詢工具依賴外部API，請確保網絡連接正常
+2. 文章摘要工具目前使用簡單的算法，適用於短文本
+3. 如需更高級的摘要功能，可考慮集成NLP模型
+
+## 開發指南
+安裝依賴: `pip install -r requirements.txt`
