@@ -21,7 +21,7 @@
   - 自動將「台」轉換為「臺」
   - 自動補上「市」或「縣」
 
-**weather_tool 創建示例**:
+- **weather_tool 創建示例**:
 ```python
 # 函數式寫法(StructuredTool.from_function)：由 LangChain 内部自動生成 args_schema
 
@@ -59,7 +59,7 @@ weather_tool = StructuredTool.from_function(
   - `max_length`: 摘要的最大字數（默認100）
   - `keywords`: 是否包含關鍵字分析（默認False）
 
-**ArticleSummarizerTool 創建示例**:
+- **ArticleSummarizerTool 創建示例**:
 ```python
 # 類別式寫法（BaseTool + BaseModel）:透過 BaseModel 統一管理參數規則
 
