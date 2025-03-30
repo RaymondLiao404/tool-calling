@@ -58,7 +58,7 @@ print(result)
 
 ## 工具選擇邏輯
 
-###天氣查詢工具 (weather_tool)
+### 1. 天氣查詢工具 (weather_tool)
 ![天氣工具描述](images/AgentExecutor_weatherTool_flow.jpg)
 
 ### 2. 文章摘要工具 (ArticleSummarizerTool)
