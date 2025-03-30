@@ -118,12 +118,6 @@ class ArticleSummarizerTool(BaseTool):
 
 ## 工具選擇邏輯
 
-### 1. 天氣查詢工具 (weather_tool)
-![天氣工具描述](images/AgentExecutor_weatherTool_flow.jpg)
-
-### 2. 文章摘要工具 (ArticleSummarizerTool)
-![文章摘要工具描述](images/AgentExecutor_article_summarizer_flow.jpg)
-
 工具調用邏輯由LangChain的AgentExecutor處理，它會根據以下流程選擇合適的工具：
 
 1. **解析用戶輸入**
@@ -134,6 +128,12 @@ class ArticleSummarizerTool(BaseTool):
 3. **輸入驗證**
 4. **執行工具**
 5. **返回結果**
+
+### 1. 天氣查詢工具 (weather_tool)
+![天氣工具描述](images/AgentExecutor_weatherTool_flow.jpg)
+
+### 2. 文章摘要工具 (ArticleSummarizerTool)
+![文章摘要工具描述](images/AgentExecutor_article_summarizer_flow.jpg)
 
 ## LangChain 工具創建方式與Pydantic整合
 
