@@ -49,8 +49,6 @@ weather_tool = StructuredTool.from_function(
 )
 ```
 
-**執行結果與分析**:
-- [查看LangSmith執行流程](https://smith.langchain.com/public/ba158f91-b1c9-4fc6-adf6-7dfe8804ad60/r)
 
 ### 2. 文章摘要工具 (ArticleSummarizerTool)
 - **功能**: 生成文章摘要，可選關鍵字分析
@@ -113,8 +111,6 @@ class ArticleSummarizerTool(BaseTool):
         return self._run(text, max_length, keywords)
 ```
 
-**執行結果與分析**:
-- [查看LangSmith執行流程](https://smith.langchain.com/public/c3ef486a-8721-40b6-88b5-aeba3310535f/r)
 
 ## 工具選擇邏輯
 
